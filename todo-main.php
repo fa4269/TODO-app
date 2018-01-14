@@ -12,9 +12,6 @@ class overview {
     }
 }
 
-class communicator{
-
-}
 class task{
     public $taskCount;
     public $tableName;
@@ -39,14 +36,19 @@ class taskManager{
         $obj->taskCount = $obj->taskCount + 1;
         mysqli_query($obj->db, "INSERT INTO ".$obj->tableName."(Task_Name, Due_Date) VALUES  ('".$taskName."', '".$taskDate."');");
     }
-    public function deleteTask($obj, $taskID){
+    public function delTask($obj, $taskID){
         $obj->taskCount = $obj->taskCount - 1;
         mysqli_query($obj->db, "DELETE FROM ".$obj->tableName." WHERE Task_ID=".$taskID.";");
     }
-    //public getTasks($obj){
-        //$call = "SELECT * FROM ".$obj->tableName." ORDER BY Task_ID;";
-        //if(mysqli_multi_query($obj->db, $call)
-    //}
+    public function getTasks($obj){
+        $call = "SELECT * FROM ".$obj->tableName.";";
+        $result = $obj->db->query($call);
+        while($row = $result->fetch_assoc()){
+            echo $row["Task_ID"]."\t".$row["Task_Name"]."\t".$row["Due_Date"]."\n";
+            //printf("%s  %s  %s\n", $row["Task_ID"], $row["Task_Name"], $row["Due_Date"]);
+        }
+        $result->close();
+    }
 }
 
 $dbCon=mysqli_connect("localhost", "root", "123abc", "todo");
@@ -65,12 +67,43 @@ $over = new overview();
 $over->count($cMgr, $pMgr, $sMgr, $lMgr);
 echo "Total tasks: ".$over->getCount();
 
-if($_POST["Name"]){
-    echo $_POST['Name'];
+
+if($_POST["Name"] and $_POST["Date"]){
+    if($_POST["Status"] == "pending"){
+        $master->addTask($pMgr, $_POST["Name"], $_POST["Date"]);
+    }
+    else if($_POST["Status"] == "completed"){
+        $master->addTask($cMgr, $_POST["Name"], $_POST["Date"]);
+    }
+    else if($_POST["Status"] == "strted"){
+        $master->addTask($sMgr, $_POST["Name"], $_POST["Date"]);
+    }
+    else{
+        $master->addTask($lMgr, $_POST["Name"], $_POST["Date"]);
+    }
 }
 
+if($_POST["ID"]){
+    if($_POST["delStatus"] == "pending"){
+        $master->delTask($pMgr, $_POST["ID"]);
+    }
+    else if($_POST["delStatus"] == "completed"){
+        $master->delTask($cMgr, $_POST["ID"]);
+    }
+    else if($_POST["delStatus"] == "strted"){
+        $master->delTask($sMgr, $_POST["ID"]);
+    }
+    else
+        $master->delTask($lMgr, $_POST["ID"]);
+    }
+}
 
+if($_GET['compButton']){$master->getTasks($cMgr);}
+if($_GET['strtButton']){$master->getTasks($sMgr);}
+if($_GET['pendButton']){$master->getTasks($pMgr);}
+if($_GET['lateButton']){$master->getTasks($lMgr);}
 if($_GET['iniButton']){initializeDB($dbCon);}
+
 
 mysqli_close($dbCon);
 
@@ -103,25 +136,29 @@ function initializeDB(&$db){
 </head>
 <body>
 
-
-<p><a href="completed.php">Completed Tasks: </a>
-<p><a href="pending.php">Pending Tasks: </a>
-<p><a href="strted.php">Started Tasks: </a>
-<p><a href="late.php">Late Tasks: </a>
-
-
+<p>
+<button id="compButton" name = "compButton" onClick='location.href="?compButton=1"'>Completed Tasks: <?php echo $cMgr->taskCount ?></button><p>
+<button id="strtButton" name = "strtButton" onClick='location.href="?strtButton=1"'>Started Tasks: <?php echo $sMgr->taskCount ?></button><p>
+<button id="pendButton" name = "pendButton" onClick='location.href="?pendButton=1"'>Pending Tasks: <?php echo $pMgr->taskCount ?></button><p>
+<button id="lateButton" name = "lateButton" onClick='location.href="?lateButton=1"'>Late Tasks: <?php echo $lMgr->taskCount ?></button><p>
 <button id="dbiniButton" name = "dbiniButton" onClick='location.href="?iniButton=1"'>Initialize Database With Sample Data</button>
 
-<!--input type="submit" class="button" name="Initialize" value"Initialize" /-->
-
-<!--form method"post" action=initializeDB()>
-    <button type="button">Initialize</button>
-</form-->
 
     <form action = "<?php $_PHP_SELF ?>" method = "POST">
         Task Name: <input type = "text" name = "Name"/>
         Task Date: <input type = "text" name = "Date"/>
         <select name ="Status">
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+            <option value="strted">Started</option>
+            <option value="late">Late</option>
+        </select-->
+        <input type = "submit" />
+    </form>
+
+    <form action = "<?php $_PHP_SELF ?>" method = "POST">
+        Task ID: <input type = "text" name = "ID"/>
+        <select name ="delStatus">
             <option value="pending">Pending</option>
             <option value="completed">Completed</option>
             <option value="strted">Started</option>
