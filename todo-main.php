@@ -1,55 +1,8 @@
 <?php
 
-class overview {
-    private $totalTasks;
-
-    function count($obj1, $obj2, $obj3, $obj4){
-        $this->totalTasks = $obj1->taskCount + $obj2->taskCount + $obj3->taskCount + $obj4->taskCount;
-
-    }
-    function getCount(){
-        return $this->totalTasks;
-    }
-}
-
-class task{
-    public $taskCount;
-    public $tableName;
-    public $db;
-
-    function __construct($tableName, &$db){
-        $this->tableName = $tableName;
-        $this->db = $db;
-        $call = "SELECT * FROM ".$tableName;
-
-        if ($stmt = mysqli_prepare($db, $call)){
-
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_store_result($stmt);
-            $this->taskCount = mysqli_stmt_num_rows($stmt);
-        }
-    }
-}
-class taskManager{
-
-    public function addTask($obj, $taskName, $taskDate){
-        $obj->taskCount = $obj->taskCount + 1;
-        mysqli_query($obj->db, "INSERT INTO ".$obj->tableName."(Task_Name, Due_Date) VALUES  ('".$taskName."', '".$taskDate."');");
-    }
-    public function delTask($obj, $taskID){
-        $obj->taskCount = $obj->taskCount - 1;
-        mysqli_query($obj->db, "DELETE FROM ".$obj->tableName." WHERE Task_ID=".$taskID.";");
-    }
-    public function getTasks($obj){
-        $call = "SELECT * FROM ".$obj->tableName.";";
-        $result = $obj->db->query($call);
-        while($row = $result->fetch_assoc()){
-            echo $row["Task_ID"]."\t".$row["Task_Name"]."\t".$row["Due_Date"]."\n";
-            //printf("%s  %s  %s\n", $row["Task_ID"], $row["Task_Name"], $row["Due_Date"]);
-        }
-        $result->close();
-    }
-}
+require_once("overview.php");
+require_once("task.php");
+require_once("taskManager.php");
 
 $dbCon=mysqli_connect("localhost", "root", "123abc", "todo");
 if(mysqli_connect_errno()){
@@ -65,8 +18,6 @@ $lMgr = new task("late", $dbCon);
 
 $over = new overview();
 $over->count($cMgr, $pMgr, $sMgr, $lMgr);
-echo "Total tasks: ".$over->getCount();
-
 
 if($_POST["Name"] and $_POST["Date"]){
     if($_POST["Status"] == "pending"){
@@ -81,6 +32,7 @@ if($_POST["Name"] and $_POST["Date"]){
     else{
         $master->addTask($lMgr, $_POST["Name"], $_POST["Date"]);
     }
+    $over->count($cMgr, $pMgr, $sMgr, $lMgr);
 }
 
 if($_POST["ID"]){
@@ -93,9 +45,10 @@ if($_POST["ID"]){
     else if($_POST["delStatus"] == "strted"){
         $master->delTask($sMgr, $_POST["ID"]);
     }
-    else
+    else{
         $master->delTask($lMgr, $_POST["ID"]);
     }
+    $over->count($cMgr, $pMgr, $sMgr, $lMgr);
 }
 
 if($_GET['compButton']){$master->getTasks($cMgr);}
@@ -129,12 +82,13 @@ function initializeDB(&$db){
 
     exit();
 }
+
+echo "Total tasks: ".$over->getCount();
 ?>
 <html>
-<head>
-<titles><?php echo ""; ?></titles>
-</head>
 <body>
+
+
 
 <p>
 <button id="compButton" name = "compButton" onClick='location.href="?compButton=1"'>Completed Tasks: <?php echo $cMgr->taskCount ?></button><p>
@@ -143,7 +97,8 @@ function initializeDB(&$db){
 <button id="lateButton" name = "lateButton" onClick='location.href="?lateButton=1"'>Late Tasks: <?php echo $lMgr->taskCount ?></button><p>
 <button id="dbiniButton" name = "dbiniButton" onClick='location.href="?iniButton=1"'>Initialize Database With Sample Data</button>
 
-
+<p>
+<b>Add Task: </b><p>
     <form action = "<?php $_PHP_SELF ?>" method = "POST">
         Task Name: <input type = "text" name = "Name"/>
         Task Date: <input type = "text" name = "Date"/>
@@ -155,7 +110,7 @@ function initializeDB(&$db){
         </select-->
         <input type = "submit" />
     </form>
-
+<b>Delete Task: </b><p>
     <form action = "<?php $_PHP_SELF ?>" method = "POST">
         Task ID: <input type = "text" name = "ID"/>
         <select name ="delStatus">
