@@ -1,5 +1,7 @@
 <?php
 
+//Class overview is used to track the total number of tasks contained in all 4 task objects
+
 class overview {
     private $totalTasks;
 

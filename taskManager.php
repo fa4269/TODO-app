@@ -1,5 +1,14 @@
 <?php
 
+/*
+
+Class taskManager is used to edit the respective tables of each task object
+
+These functions all accept the object to be manipulated as well as some additional variables
+depending on the function
+
+*/
+
 class taskManager{
 
     public function addTask($obj, $taskName, $taskDate){

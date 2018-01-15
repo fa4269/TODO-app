@@ -1,3 +1,10 @@
+<!-- 
+
+todo program by Brandon Jackson fa4269
+
+
+-->
+
 <html>
 <body>
 
@@ -8,11 +15,13 @@
 require_once("overview.php");
 require_once("task.php");
 require_once("taskManager.php");
+//class files
 
-$dbCon=mysqli_connect("localhost", "root", "123abc", "todo");
+$dbCon = mysqli_connect("localhost", "root", "123abc", "todo");
 if(mysqli_connect_errno()){
         echo "Failed to connect ".mysqli_connect_error();
 }
+//database connection
 
 
 $master = new taskManager;
@@ -24,6 +33,7 @@ $lMgr = new task("late", $dbCon);
 
 $over = new overview();
 $over->count($cMgr, $pMgr, $sMgr, $lMgr);
+
 
 if($_POST["Name"] and $_POST["Date"]){
     if($_POST["Status"] == "pending"){
@@ -56,6 +66,7 @@ if($_POST["ID"]){
     }
     $over->count($cMgr, $pMgr, $sMgr, $lMgr);
 }
+//buttons
 
 if($_GET['compButton']){$master->getTasks($cMgr);}
 if($_GET['strtButton']){$master->getTasks($sMgr);}
@@ -68,7 +79,7 @@ if($_GET['showAllButton']){
     $master->getTasks($lMgr); ?><p><?php 
 }
 if($_GET['iniButton']){initializeDB($dbCon);}
-
+//if button pressed
 
 mysqli_close($dbCon);
 
@@ -82,14 +93,16 @@ function initializeDB(&$db){
     mysqli_query($db, "CREATE TABLE completed(Task_ID int NOT NULL AUTO_INCREMENT, Task_Name varchar(255) NOT NULL, Due_Date varchar(255) NOT NULL, PRIMARY KEY(Task_ID));");
     mysqli_query($db, "CREATE TABLE late(Task_ID int NOT NULL AUTO_INCREMENT, Task_Name varchar(255) NOT NULL, Due_Date varchar(255) NOT NULL, PRIMARY KEY(Task_ID));");
 
-    /*mysqli_query($db, "INSERT INTO pending VALUES (1, 'Go to Gym', '9PM');");
+    /*
+    mysqli_query($db, "INSERT INTO pending VALUES (1, 'Go to Gym', '9PM');");
     mysqli_query($db, "INSERT INTO pending VALUES (2, 'Cook Breakfast', '8PM');");
     mysqli_query($db, "INSERT INTO strted VALUES (1, 'Create to do list program', '1/15');");
     mysqli_query($db, "INSERT INTO strted VALUES (2, 'Create test data for database', '1/23');");
     mysqli_query($db, "INSERT INTO strted VALUES (3, 'Call mom', '1/30');");
     mysqli_query($db, "INSERT INTO completed VALUES (1, 'Clean house', '1/10');");
     mysqli_query($db, "INSERT INTO completed VALUES (2, 'Do homework', '1/11');");
-    mysqli_query($db, "INSERT INTO late VALUES (1, 'Feed dog', '1/14');");*/
+    mysqli_query($db, "INSERT INTO late VALUES (1, 'Feed dog', '1/14');");
+    */
 
 }
 
