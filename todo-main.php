@@ -1,3 +1,8 @@
+<html>
+<body>
+
+<b>ID &emsp; Name &emsp; Due Date &emsp; Status</b><p>
+
 <?php
 
 require_once("overview.php");
@@ -8,6 +13,7 @@ $dbCon=mysqli_connect("localhost", "root", "123abc", "todo");
 if(mysqli_connect_errno()){
         echo "Failed to connect ".mysqli_connect_error();
 }
+
 
 $master = new taskManager;
 
@@ -55,6 +61,12 @@ if($_GET['compButton']){$master->getTasks($cMgr);}
 if($_GET['strtButton']){$master->getTasks($sMgr);}
 if($_GET['pendButton']){$master->getTasks($pMgr);}
 if($_GET['lateButton']){$master->getTasks($lMgr);}
+if($_GET['showAllButton']){
+    $master->getTasks($cMgr); ?><p><?php
+    $master->getTasks($sMgr); ?><p><?php 
+    $master->getTasks($pMgr); ?><p><?php 
+    $master->getTasks($lMgr); ?><p><?php 
+}
 if($_GET['iniButton']){initializeDB($dbCon);}
 
 
@@ -62,7 +74,7 @@ mysqli_close($dbCon);
 
 function initializeDB(&$db){
 
-    echo "database initialized";
+    echo "Database initialized.";
 
     mysqli_query($db, "DROP TABLE IF EXISTS pending, strted, completed, late;");
     mysqli_query($db, "CREATE TABLE pending(Task_ID int NOT NULL AUTO_INCREMENT, Task_Name varchar(255) NOT NULL, Due_Date varchar(255) NOT NULL, PRIMARY KEY(Task_ID));");
@@ -70,38 +82,38 @@ function initializeDB(&$db){
     mysqli_query($db, "CREATE TABLE completed(Task_ID int NOT NULL AUTO_INCREMENT, Task_Name varchar(255) NOT NULL, Due_Date varchar(255) NOT NULL, PRIMARY KEY(Task_ID));");
     mysqli_query($db, "CREATE TABLE late(Task_ID int NOT NULL AUTO_INCREMENT, Task_Name varchar(255) NOT NULL, Due_Date varchar(255) NOT NULL, PRIMARY KEY(Task_ID));");
 
-    mysqli_query($db, "INSERT INTO pending VALUES (1, 'Go to Gym', '9PM');");
+    /*mysqli_query($db, "INSERT INTO pending VALUES (1, 'Go to Gym', '9PM');");
     mysqli_query($db, "INSERT INTO pending VALUES (2, 'Cook Breakfast', '8PM');");
     mysqli_query($db, "INSERT INTO strted VALUES (1, 'Create to do list program', '1/15');");
     mysqli_query($db, "INSERT INTO strted VALUES (2, 'Create test data for database', '1/23');");
     mysqli_query($db, "INSERT INTO strted VALUES (3, 'Call mom', '1/30');");
     mysqli_query($db, "INSERT INTO completed VALUES (1, 'Clean house', '1/10');");
     mysqli_query($db, "INSERT INTO completed VALUES (2, 'Do homework', '1/11');");
-    mysqli_query($db, "INSERT INTO late VALUES (1, 'Feed dog', '1/14');");
+    mysqli_query($db, "INSERT INTO late VALUES (1, 'Feed dog', '1/14');");*/
 
-
-    exit();
 }
 
-echo "Total tasks: ".$over->getCount();
 ?>
-<html>
-<body>
-
-
 
 <p>
+<b>-----------------------------------------------</b><p>
+
+<p>
+<button id="showAllButton" name = "showAllButton" onClick='location.href="?showAllButton=1"'>Total Tasks: <?php echo $over->getCount(); ?></button><p>
 <button id="compButton" name = "compButton" onClick='location.href="?compButton=1"'>Completed Tasks: <?php echo $cMgr->taskCount ?></button><p>
 <button id="strtButton" name = "strtButton" onClick='location.href="?strtButton=1"'>Started Tasks: <?php echo $sMgr->taskCount ?></button><p>
 <button id="pendButton" name = "pendButton" onClick='location.href="?pendButton=1"'>Pending Tasks: <?php echo $pMgr->taskCount ?></button><p>
 <button id="lateButton" name = "lateButton" onClick='location.href="?lateButton=1"'>Late Tasks: <?php echo $lMgr->taskCount ?></button><p>
-<button id="dbiniButton" name = "dbiniButton" onClick='location.href="?iniButton=1"'>Initialize Database With Sample Data</button>
+
+<p>
+<b>-----------------------------------------------</b>
 
 <p>
 <b>Add Task: </b><p>
     <form action = "<?php $_PHP_SELF ?>" method = "POST">
         Task Name: <input type = "text" name = "Name"/>
         Task Date: <input type = "text" name = "Date"/>
+        Status: 
         <select name ="Status">
             <option value="pending">Pending</option>
             <option value="completed">Completed</option>
@@ -113,6 +125,7 @@ echo "Total tasks: ".$over->getCount();
 <b>Delete Task: </b><p>
     <form action = "<?php $_PHP_SELF ?>" method = "POST">
         Task ID: <input type = "text" name = "ID"/>
+        Status: 
         <select name ="delStatus">
             <option value="pending">Pending</option>
             <option value="completed">Completed</option>
@@ -122,5 +135,6 @@ echo "Total tasks: ".$over->getCount();
         <input type = "submit" />
     </form>
 
+<p><button id="dbiniButton" name = "dbiniButton" onClick='location.href="?iniButton=1"'>Initialize Database (Must be run first time)</button>
 </body>
 </html>

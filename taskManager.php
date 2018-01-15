@@ -14,7 +14,7 @@ class taskManager{
         $call = "SELECT * FROM ".$obj->tableName.";";
         $result = $obj->db->query($call);
         while($row = $result->fetch_assoc()){
-            echo $row["Task_ID"]."\t".$row["Task_Name"]."\t".$row["Due_Date"]."\n";
+            echo $row["Task_ID"]."&emsp;".$row["Task_Name"]."&emsp;".$row["Due_Date"]."&emsp;".$obj->tableName."<br>";
         }
         $result->close();
     }
